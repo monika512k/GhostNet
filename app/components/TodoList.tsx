@@ -1,9 +1,18 @@
 "use client";
 
+import {
+  Check,
+  Database,
+  Edit2,
+  Loader2,
+  RefreshCw,
+  Shield,
+  Trash2,
+  X
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTodos } from './TodoContext';
+import { useTodos } from "./TodoContext";
 
-// Define the Todo type
 interface Todo {
   id: string;
   title: string;
@@ -36,7 +45,7 @@ export default function TodoList({ userId }: TodoListProps) {
     };
 
     initialFetch();
-  }, [userId]);
+  }, [userId, refreshTodos]);
 
   useEffect(() => {
     async function fetchTodos() {
@@ -55,7 +64,7 @@ export default function TodoList({ userId }: TodoListProps) {
     }
 
     fetchTodos();
-  }, [userId]);
+  }, [userId, setTodos]);
 
   const toggleCompletion = async (todoId: string, currentStatus: boolean) => {
     try {
@@ -128,83 +137,150 @@ export default function TodoList({ userId }: TodoListProps) {
   };
 
   if (loading) {
-    return <div className="text-center text-gray-500">Loading todos...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-center text-red-500">Error: {error}</div>;
+    return (
+      <div className="max-w-md mx-auto mt-10 p-4 bg-red-900/30 border border-red-500/50 rounded-lg backdrop-blur-xl">
+        <h2 className="text-lg font-['Orbitron'] text-red-400 mb-2 flex items-center gap-2">
+          <Shield className="w-5 h-5" />
+          SYSTEM FAILURE
+        </h2>
+        <p className="text-red-300 font-['Rajdhani']">{error}</p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-md mx-auto mt-10 p-4 border rounded-lg shadow-md bg-white">
-      <h2 className="text-xl font-semibold text-center mb-4">Your Todos</h2>
-      {todos.length === 0 ? (
-        <p className="text-gray-500 text-center">No todos found.</p>
-      ) : (
-        <ul className="space-y-3">
-          {todos.map((todo) => (
-            <li
-              key={todo.id}
-              className={`p-3 border rounded-md flex justify-between items-center ${
-                todo.completed ? "bg-green-50" : "bg-gray-50"
-              } hover:bg-gray-100`}
-            >
-              <div className="flex-1">
-                {editingTodoId === todo.id ? (
-                  <input
-                    type="text"
-                    value={editedTitle}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                    className="w-full border px-2 py-1 rounded focus:outline-none"
-                  />
-                ) : (
-                  <span
-                    className={`text-gray-800 ${
-                      todo.completed ? "line-through text-gray-500" : ""
-                    }`}
-                  >
-                    {todo.title}
-                  </span>
-                )}
-              </div>
-              <div className="flex space-x-2">
-                {editingTodoId === todo.id ? (
-                  <button
-                    className="text-sm px-3 py-1 rounded bg-green-500 text-white hover:bg-green-600"
-                    onClick={() => handleUpdate(todo.id)}
-                  >
-                    Update
-                  </button>
-                ) : (
-                  <button
-                    className="text-sm px-3 py-1 rounded bg-yellow-500 text-white hover:bg-yellow-600"
-                    onClick={() => handleEdit(todo.id, todo.title)}
-                  >
-                    Edit
-                  </button>
-                )}
-                <button
-                  className={`text-sm px-3 py-1 rounded ${
+    <div className="max-w-4xl mx-auto mt-10">
+      {/* Header Section */}
+      <div className="backdrop-blur-xl bg-black/30 rounded-2xl p-6 border border-cyan-500/20 mb-8">
+        <div className="flex justify-between items-center flex-col">
+          <div className="flex items-center gap-3">
+            <Database className="w-6 h-6 text-cyan-400" />
+            <h2 className="text-2xl font-['Orbitron'] font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
+              MISSION OBJECTIVES
+            </h2>
+          </div>
+          <button
+            onClick={() => refreshTodos(userId)}
+            className="group flex items-center gap-2 px-4 py-2 bg-blue-900/30 rounded-lg hover:bg-blue-800/40 transition duration-300 border border-cyan-500/30"
+          >
+            <RefreshCw className="w-5 h-5 text-cyan-400 group-hover:rotate-180 transition-transform duration-500" />
+            <span className="font-['Rajdhani'] text-cyan-300">SYNC</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Todo List */}
+      <div className="backdrop-blur-xl bg-black/40 rounded-3xl shadow-2xl border border-cyan-500/20 overflow-hidden">
+        <div className="p-6">
+          {todos.length === 0 ? (
+            <div className="text-cyan-300 text-center py-8 font-['Rajdhani']">
+              NO ACTIVE OBJECTIVES FOUND
+            </div>
+          ) : (
+            <ul className="space-y-4">
+              {todos.map((todo) => (
+                <li
+                  key={todo.id}
+                  className={`p-4 rounded-xl transition-all duration-300 ${
                     todo.completed
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
-                  onClick={() => toggleCompletion(todo.id, todo.completed)}
-                  disabled={todo.completed}
+                      ? "bg-green-900/20 border border-green-500/30"
+                      : "bg-blue-900/20 border border-cyan-500/30"
+                  } hover:border-cyan-400/50 group`}
                 >
-                  {todo.completed ? "Completed" : "Mark Complete"}
-                </button>
-                <button
-                  className="text-sm px-3 py-1 rounded bg-red-500 text-white hover:bg-red-600"
-                  onClick={() => deleteTodo(todo.id)}
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 mr-4">
+                      {editingTodoId === todo.id ? (
+                        <input
+                          type="text"
+                          value={editedTitle}
+                          onChange={(e) => setEditedTitle(e.target.value)}
+                          className="w-full px-4 py-2 bg-black/50 text-cyan-300 border border-cyan-500/30 rounded-lg focus:outline-none focus:border-cyan-400 font-['Rajdhani']"
+                          onKeyPress={(e) =>
+                            e.key === "Enter" && handleUpdate(todo.id)
+                          }
+                        />
+                      ) : (
+                        <span
+                          className={`font-['Rajdhani'] text-lg ${
+                            todo.completed
+                              ? "line-through text-green-400"
+                              : "text-cyan-300"
+                          }`}
+                        >
+                          {todo.title}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex space-x-3">
+                      {editingTodoId === todo.id ? (
+                        <>
+                          <button
+                            onClick={() => handleUpdate(todo.id)}
+                            className="text-green-400 hover:text-green-300 transition-colors duration-200"
+                            aria-label="Save changes"
+                          >
+                            <Check className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => setEditingTodoId(null)}
+                            className="text-red-400 hover:text-red-300 transition-colors duration-200"
+                            aria-label="Cancel editing"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEdit(todo.id, todo.title)}
+                            className="text-purple-400 hover:text-purple-300 transition-colors duration-200"
+                            aria-label="Edit objective"
+                          >
+                            <Edit2 className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() =>
+                              toggleCompletion(todo.id, todo.completed)
+                            }
+                            className={`transition-colors duration-200 ${
+                              todo.completed
+                                ? "text-gray-500 cursor-not-allowed"
+                                : "text-green-400 hover:text-green-300"
+                            }`}
+                            disabled={todo.completed}
+                            aria-label={
+                              todo.completed
+                                ? "Objective completed"
+                                : "Mark as complete"
+                            }
+                          >
+                            <Check className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => deleteTodo(todo.id)}
+                            className="text-red-400 hover:text-red-300 transition-colors duration-200"
+                            aria-label="Delete objective"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
