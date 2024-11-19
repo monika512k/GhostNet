@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import ChatComponent from './ChatComponent'
 
-export default async function ChatPage({ params }: { params: { receiverId: string } }) {
+export default async function ChatPage({ params }: { params: Promise<{ receiverId: string }> }) {
   const session = await auth()
   if (!session?.user) {
     redirect('/api/auth/signin')
