@@ -17,6 +17,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   todos         Todo[]
+  reminders     Reminder[] 
 }
 
 model Account {
@@ -52,6 +53,18 @@ model Todo {
   completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+
+model Reminder {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  phoneNumber String
+  reminderAt  DateTime
+  createdAt   DateTime @default(now())
   userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
