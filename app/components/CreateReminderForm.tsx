@@ -2,8 +2,15 @@
 
 import { useState } from "react";
 
+interface ReminderFormData {
+  title: string;
+  description: string;
+  phoneNumber: string;
+  reminderAt: string;
+}
+
 export default function ReminderForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ReminderFormData>({
     title: "",
     description: "",
     phoneNumber: "",
@@ -13,7 +20,9 @@ export default function ReminderForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -26,7 +35,7 @@ export default function ReminderForm() {
       const res = await fetch("/api/reminder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, userId: "current-user-id" }), // Replace with auth user ID
+        body: JSON.stringify({ ...formData, userId: "current-user-id" }),
       });
 
       if (res.ok) {
